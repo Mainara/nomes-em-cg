@@ -15,29 +15,30 @@ source(here("code/read_wrangle.R"))
 vias = read_wrangle_data()
 
 profissoes_nos_dados = vias %>% 
-  filter(!is.na(profissao)) %>%  
-  pull(profissao) %>% 
+  filter(!is.na(tipo_profissao)) %>%  
+  pull(tipo_profissao) %>% 
   unique()
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
-    prof_selecionada = reactive({input$profissao})
-    
-    output$distPlot <- renderPlot({
-        vias_profissao = vias %>% filter(profissao == prof_selecionada())
+    prof_selecionada = reactive({input$tipo_profissao})
+    output$comprimento_trecho <- renderPlot({
+        vias_profissao = vias %>% filter(tipo_profissao == prof_selecionada())
         vias_profissao %>% 
-            ggplot(aes(x = arvores_100m_mean)) + 
-            geom_histogram(binwidth = 1, 
-                           boundary = 0, 
-                           fill = "darkgreen") + 
-            scale_x_continuous(limits = c(0, 15))
+            ggplot(aes(x = comprimento, y = trechos)) + 
+            geom_point(size = 1)
+    })
+    
+    output$hist <- renderPlot({
+
     })
     
     output$listagem <- renderTable({
         vias %>% 
-            filter(profissao == prof_selecionada()) %>% 
+            filter(tipo_profissao == prof_selecionada()) %>% 
             select(nome = nomelograd, 
                    comprimento)
     })
     
 })
+

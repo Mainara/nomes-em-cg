@@ -3,9 +3,10 @@ library(tidyverse)
 library(here)
 source(here("code/read_wrangle.R"))
 
+
 profissoes_nos_dados = read_wrangle_data() %>% 
-    filter(!is.na(profissao)) %>%  
-    pull(profissao) %>% 
+    filter(!is.na(tipo_profissao)) %>%  
+    pull(tipo_profissao) %>% 
     unique()
 
 
@@ -13,24 +14,29 @@ profissoes_nos_dados = read_wrangle_data() %>%
 shinyUI(fluidPage(
   
   # Application title
-  titlePanel("Ruas mais arborizadas por profissão"),
+  tags$link(
+      href=paste0("http://fonts.googleapis.com/css?",
+                  "family=Source+Sans+Pro:300,600,300italic"),
+      rel="stylesheet", type="text/css"),
+  tags$style(type="text/css",
+             "body {font-family: 'Source Sans Pro'}"
+  ),
+  
+  h2("Análise das ruas de CG"),
   
   # Sidebar with a slider input for number of bins 
   sidebarLayout(
     sidebarPanel(
-        selectInput("profissao", 
-                    "Profissão", 
-                    choices = profissoes_nos_dados), 
-        sliderInput("bins",
-                    "Number of bins:",
-                    min = 1,
-                    max = 50,
-                    value = 30)
-    ),
+        selectInput("tipo_profissao", 
+                    "Tipo profissão", 
+                    choices = profissoes_nos_dados),
+        sliderInput('size', 'Point size', min = 0.2, max = 5, value = 1)
+        ),
+    
     
     # Show a plot of the generated distribution
     mainPanel(
-       plotOutput("distPlot"), 
+        plotOutput("comprimento_trecho"), 
        tableOutput("listagem")
     )
   )
