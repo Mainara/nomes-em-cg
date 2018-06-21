@@ -29,14 +29,13 @@ shinyUI(fluidPage(
     sidebarPanel(
         selectInput("tipo_profissao", 
                     "Tipo profissão", 
-                    choices = profissoes_nos_dados),
-        sliderInput('size', 'Point size', min = 0.2, max = 5, value = 1)
-        ),
+                    choices = profissoes_nos_dados)),
     
     
     # Show a plot of the generated distribution
     mainPanel(
-        plotOutput("comprimento_trecho"), 
+       plotOutput("comprimento_trecho"), 
+       plotOutput("hist"),
        tableOutput("listagem")
     )
   )

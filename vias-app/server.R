@@ -11,6 +11,8 @@ library(shiny)
 library(tidyverse)
 library(here)
 source(here("code/read_wrangle.R"))
+library(plotly)
+library(DT)
 
 vias = read_wrangle_data()
 
@@ -22,22 +24,44 @@ profissoes_nos_dados = vias %>%
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
     prof_selecionada = reactive({input$tipo_profissao})
+    
     output$comprimento_trecho <- renderPlot({
-        vias_profissao = vias %>% filter(tipo_profissao == prof_selecionada())
-        vias_profissao %>% 
-            ggplot(aes(x = comprimento, y = trechos)) + 
-            geom_point(size = 1)
+        vias_profissao = vias %>% filter(tipo_profissao == prof_selecionada())    
+        plot_ly(vias_profissao, type="scatter", x = vias_profissao$comprimento, y = vias_profissao$arvore,
+        text = paste("Nome: ",vias_profissao$nomelograd), 
+        mode = "markers", size = vias_profissao$faixapedes) %>% 
+            layout(
+                title = "Relação entre comprimento e quantidade de árvores",
+                scene = list(
+                    xaxis = list(title = "Comprimento"),
+                    yaxis = list(title = "Quantidade de árvores")
+                ))
     })
     
     output$hist <- renderPlot({
-
+        vias_profissao = vias %>% filter(tipo_profissao == prof_selecionada())
+        p = vias_profissao%>% 
+            ggplot(aes(x = profissao)) +
+            geom_bar(aes(x = profissao,
+                         fill = profissao,
+                         text = paste(profissao),
+                         label = ..count..),
+                     stat = "count"
+            )  +
+            labs(x = "Profissão", y = "Total") + 
+            theme(axis.text.x = element_text(angle = 90,
+                                             hjust = 1),
+                  legend.position="none") 
+            
+        
+        ggplotly(p, tooltip = c("text","label")) %>%
+            layout(title = "Número de profissões")
     })
     
     output$listagem <- renderTable({
-        vias %>% 
-            filter(tipo_profissao == prof_selecionada()) %>% 
-            select(nome = nomelograd, 
-                   comprimento)
+        table = vias %>% 
+            filter(tipo_profissao == prof_selecionada())
+            datatable(table, options = list(pageLength = 10))
     })
     
 })
