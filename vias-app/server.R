@@ -11,6 +11,7 @@ library(shiny)
 library(tidyverse)
 library(here)
 source(here("code/read_wrangle.R"))
+library(ggplot2)
 library(plotly)
 library(DT)
 
@@ -25,20 +26,18 @@ profissoes_nos_dados = vias %>%
 shinyServer(function(input, output) {
     prof_selecionada = reactive({input$tipo_profissao})
     
-    output$comprimento_trecho <- renderPlot({
+    output$comprimento_trecho <- renderPlotly({
         vias_profissao = vias %>% filter(tipo_profissao == prof_selecionada())    
         plot_ly(vias_profissao, type="scatter", x = vias_profissao$comprimento, y = vias_profissao$arvore,
         text = paste("Nome: ",vias_profissao$nomelograd), 
         mode = "markers", size = vias_profissao$faixapedes) %>% 
             layout(
-                title = "Relação entre comprimento e quantidade de árvores",
-                scene = list(
-                    xaxis = list(title = "Comprimento"),
-                    yaxis = list(title = "Quantidade de árvores")
-                ))
+                title = "Relação entre comprimento e quantidade de árvores"
+                ) 
+            
     })
     
-    output$hist <- renderPlot({
+    output$hist <- renderPlotly({
         vias_profissao = vias %>% filter(tipo_profissao == prof_selecionada())
         p = vias_profissao%>% 
             ggplot(aes(x = profissao)) +
@@ -58,10 +57,11 @@ shinyServer(function(input, output) {
             layout(title = "Número de profissões")
     })
     
-    output$listagem <- renderTable({
+    output$listagem <- renderDataTable({
         table = vias %>% 
-            filter(tipo_profissao == prof_selecionada())
-            datatable(table, options = list(pageLength = 10))
+            filter(tipo_profissao == prof_selecionada()) %>% 
+            select(nomelograd, profissao, tipo_profissao)
+            DT::datatable(table, options = list(pageLength = 10))
     })
     
 })

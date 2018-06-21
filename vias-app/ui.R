@@ -2,6 +2,8 @@ library(shiny)
 library(tidyverse)
 library(here)
 source(here("code/read_wrangle.R"))
+library(plotly)
+library(DT)
 
 
 profissoes_nos_dados = read_wrangle_data() %>% 
@@ -34,9 +36,9 @@ shinyUI(fluidPage(
     
     # Show a plot of the generated distribution
     mainPanel(
-       plotOutput("comprimento_trecho"), 
-       plotOutput("hist"),
-       tableOutput("listagem")
+       plotlyOutput("comprimento_trecho"), 
+       plotlyOutput("hist"),
+       DT::dataTableOutput("listagem")
     )
   )
 ))
